@@ -20,8 +20,16 @@ p {
   margin-top: 40px;
   font-size: 10px;
 }
+#container {
+  position: relative;
+}
+
 canvas {
-  /* position: absolute; */
-  bottom: 100px;
+  position: absolute;
   right: 200px;
+  margin-bottom: 100;
+}
+
+#score {
+  font-size: 1.5em;
 }

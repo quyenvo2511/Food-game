@@ -1,13 +1,20 @@
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
-canvas.width = 380;
-canvas.height = 500;
+canvas.width = 450;
+canvas.height = 600;
 canvas.style.border = "1px solid black";
-document.body.appendChild(canvas);
+document.getElementById("container").appendChild(canvas);
 // setting img
 let bgReady, humanReady, foodOneReady, foodTwoReady, foodThreeReady;
 let bgImage, humanImage, foodOneImage, foodTwoImage, foodThreeImage;
+let humanWidth, humanHeight;
+let scale = 1;
 
+// The pill
+let pillImage;
+let isPillVisible = false;
+let pillWidth = 30;
+let pillHeight = 30;
 // Loading img
 
 function loadImages() {
@@ -19,6 +26,8 @@ function loadImages() {
   humanImage = new Image();
   humanImage.onload = function () {
     humanReady = true;
+    humanWidth = humanImage.naturalWidth;
+    humanHeight = humanImage.naturalHeight;
   };
   humanImage.src = "img/human.png";
 
@@ -39,21 +48,30 @@ function loadImages() {
     foodThreeReady = true;
   };
   foodThreeImage.src = "img/candy.png";
+
+  pillImage = new Image();
+  pillImage.onload = function () {
+    isPillVisible = false;
+  };
+  pillImage.src = "img/pill.png";
 }
 
 // Setting characters
 
 let humanX = canvas.width / 2;
-let humanY = canvas.height / 2;
+let humanY = canvas.height - 66;
 
 let foodOneX = Math.floor(Math.random() * (canvas.width - 10)) + 10;
-let foodOneY = (canvas.height - 31) / 4;
+let foodOneY = 0;
 
 let foodTwoX = Math.floor(Math.random() * (canvas.width - 10)) + 10;
-let foodTwoY = (canvas.height - 28) / 3;
+let foodTwoY = 0;
 
 let foodThreeX = Math.floor(Math.random() * (canvas.width - 10)) + 10;
-let foodThreeY = (canvas.height - 46) / 1.5;
+let foodThreeY = 0;
+
+let pillX = Math.floor(Math.random() * (canvas.width - 10)) + 10;
+let pillY = 0;
 
 let x = canvas.width / 2;
 let y = canvas.height / 2;
@@ -88,7 +106,7 @@ function setKeyboard() {
 function update() {
   // elapsedTime = Math.floor((Date.now() - startTime) / 1000);
   if (keyPressed["ArrowUp"]) {
-    if (humanY - 10 >= 0) {
+    if (humanY - humanHeight >= canvas.height - 200) {
       humanY -= 5;
     }
   }
@@ -110,44 +128,71 @@ function update() {
     }
   }
   foodOneY += dy;
+  // Check if the food1 has fallen into the player
   if (
-    foodOneY >= canvas.height - 66 ||
-    (humanX <= foodOneX + 32 &&
-      foodOneX <= humanX + 45 &&
-      humanY <= foodOneY + 66 &&
-      foodOneY <= humanY + 66)
+    foodOneX <= humanX + humanWidth &&
+    foodOneX >= humanX - humanWidth / 2 &&
+    foodOneY >= humanY - humanHeight / 2
   ) {
+    foodOneY = 0;
+    foodOneX = Math.floor(Math.random() * (canvas.width - 25));
+    score += 1;
+    // Increase the size of the human whe he eats the food
+    humanWidth *= 1.05;
+    humanHeight *= 1.05;
+  }
+  // Check if the food1 has pass throught the lower bound of the window
+  else if (foodOneY >= canvas.height) {
     foodOneY = 0;
     foodOneX = Math.floor(Math.random() * (canvas.width - 25));
   }
 
   foodTwoY += dy;
-  if (foodTwoY >= canvas.height) {
+  if (
+    foodTwoX <= humanX + humanWidth &&
+    foodTwoX >= humanX - humanWidth / 2 &&
+    foodTwoY >= humanY - humanHeight / 2
+  ) {
     foodTwoY = 0;
-    foodTwoY = Math.floor(Math.random() * (canvas.width - 25)) + 10;
+    foodTwoX = Math.floor(Math.random() * (canvas.width - 25));
+    score += 2;
+    humanWidth *= 1.1;
+    humanHeight *= 1.1;
   }
   foodThreeY += dy;
-  if (foodThreeY >= canvas.height) {
+  if (
+    foodThreeX <= humanX + humanWidth &&
+    foodThreeX >= humanX - humanWidth / 2 &&
+    foodThreeY >= humanY - humanHeight / 2
+  ) {
     foodThreeY = 0;
-    foodThreeY = Math.floor(Math.random() * (canvas.width - 10)) + 10;
+    foodThreeX = Math.floor(Math.random() * (canvas.width - 25));
+    score += 3;
+    humanWidth *= 1.15;
+    humanHeight *= 1.15;
   }
-  if (score === 6) {
+
+  if (score >= 5) {
+    isPillVisible = true;
+  }
+  pillY += dy;
+  if (pillY >= canvas.height) {
+    pillY = 0;
+    pillX = Math.floor(Math.random() * (canvas.width - 10)) + 10;
+    humanWidth /= 1.2;
+    humanHeight /= 1.2;
     score = 0;
   }
+  // if (score >= 6 || )
 }
-function biggerHuaman() {
-  const humanX = { x: humanX[0].x + dx, y: humanY[0].y + dy };
-  const didEatFood = humanX[0].x === foodOneX && humanX[0].y === foodOneY;
-  if (didEatFood) {
-  }
-}
+
 // Render
 function render() {
   if (bgReady) {
     ctx.drawImage(bgImage, 0, 0);
   }
   if (humanReady) {
-    ctx.drawImage(humanImage, humanX, humanY);
+    ctx.drawImage(humanImage, humanX, humanY, humanWidth, humanHeight);
   }
   if (foodOneReady) {
     ctx.drawImage(foodOneImage, foodOneX, foodOneY);
@@ -158,12 +203,16 @@ function render() {
   if (foodThreeReady) {
     ctx.drawImage(foodThreeImage, foodThreeX, foodThreeY);
   }
+  if (isPillVisible) {
+    ctx.drawImage(pillImage, pillX, pillY, pillWidth, pillHeight);
+  }
   // ctx.fillText(
   //   Seconds Remaining: ${SECONDS_PER_ROUND - elapsedTime},
   //   20,
   //   100
   // );
-  ctx.fillText(`score: ${score}`, 20, 150);
+  // ctx.fillText(`score: ${score}`, 20, 150);
+  document.getElementById("score").innerHTML = `Score: ${score}`;
 }
 
 function main() {
