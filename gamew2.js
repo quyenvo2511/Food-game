@@ -24,7 +24,7 @@ function loadImages() {
 
   foodOneImage = new Image();
   foodOneImage.onload = function () {
-    foodReady = true;
+    foodOneReady = true;
   };
   foodOneImage.src = "img/cake.png";
 
@@ -46,19 +46,20 @@ function loadImages() {
 let humanX = canvas.width / 2;
 let humanY = canvas.height / 2;
 
-let foodOneX = (canvas.width - 25) / 4;
+let foodOneX = Math.floor(Math.random() * (canvas.width - 10)) + 10;
 let foodOneY = (canvas.height - 31) / 4;
 
-let foodTwoX = (canvas.width - 25) / 3;
+let foodTwoX = Math.floor(Math.random() * (canvas.width - 10)) + 10;
 let foodTwoY = (canvas.height - 28) / 3;
 
-let foodThreeX = (canvas.width - 25) / 1.5;
+let foodThreeX = Math.floor(Math.random() * (canvas.width - 10)) + 10;
 let foodThreeY = (canvas.height - 46) / 1.5;
 
 let x = canvas.width / 2;
 let y = canvas.height / 2;
-let dx = -1;
-let dy = -1;
+let dx = 2;
+let dy = 2;
+let score = 0;
 // set keyboard
 
 let keyPressed = {};
@@ -92,7 +93,7 @@ function update() {
     }
   }
   if (keyPressed["ArrowDown"]) {
-    if (humanY + 51 + 2 <= canvas.height) {
+    if (humanY + 66 + 2 <= canvas.height) {
       humanY += 5;
     }
   }
@@ -104,42 +105,67 @@ function update() {
   }
   if (keyPressed["ArrowRight"]) {
     humanX += 5;
-    if (humanX + 35 + 2 >= canvas.width) {
-      humanX = canvas.width - 35;
+    if (humanX + 45 + 2 >= canvas.width) {
+      humanX = canvas.width - 45;
     }
   }
-  if (x + dx < foodTwoX || x + dx > canvas.width - foodTwoX) {
-    dx = -dx;
+  foodOneY += dy;
+  if (
+    foodOneY >= canvas.height - 66 ||
+    (humanX <= foodOneX + 32 &&
+      foodOneX <= humanX + 45 &&
+      humanY <= foodOneY + 66 &&
+      foodOneY <= humanY + 66)
+  ) {
+    foodOneY = 0;
+    foodOneX = Math.floor(Math.random() * (canvas.width - 25));
   }
-  if (y + dy < foodTwoY) {
-    dy = -dy;
-  }
-  // Render
 
-  function render() {
-    if (bgReady) {
-      ctx.drawImage(bgImage, 0, 0);
-    }
-    if (humanReady) {
-      ctx.drawImage(humanImage, humanX, humanY);
-    }
-    if (foodOneReady) {
-      ctx.drawImage(foodOneImage, foodOneX, foodOneY);
-    }
-    if (foodTwoReady) {
-      ctx.drawImage(foodTwoImage, foodTwoX, foodTwoY);
-    }
-    if (foodThreeReady) {
-      ctx.drawImage(foodThreeImage, foodThreeX, foodThreeY);
-    }
-    // ctx.fillText(
-    //   `Seconds Remaining: ${SECONDS_PER_ROUND - elapsedTime}`,
-    //   20,
-    //   100
-    // );
-    // ctx.fillText(`score: ${score}`, 20, 150);
+  foodTwoY += dy;
+  if (foodTwoY >= canvas.height) {
+    foodTwoY = 0;
+    foodTwoY = Math.floor(Math.random() * (canvas.width - 25)) + 10;
+  }
+  foodThreeY += dy;
+  if (foodThreeY >= canvas.height) {
+    foodThreeY = 0;
+    foodThreeY = Math.floor(Math.random() * (canvas.width - 10)) + 10;
+  }
+  if (score === 6) {
+    score = 0;
   }
 }
+function biggerHuaman() {
+  const humanX = { x: humanX[0].x + dx, y: humanY[0].y + dy };
+  const didEatFood = humanX[0].x === foodOneX && humanX[0].y === foodOneY;
+  if (didEatFood) {
+  }
+}
+// Render
+function render() {
+  if (bgReady) {
+    ctx.drawImage(bgImage, 0, 0);
+  }
+  if (humanReady) {
+    ctx.drawImage(humanImage, humanX, humanY);
+  }
+  if (foodOneReady) {
+    ctx.drawImage(foodOneImage, foodOneX, foodOneY);
+  }
+  if (foodTwoReady) {
+    ctx.drawImage(foodTwoImage, foodTwoX, foodTwoY);
+  }
+  if (foodThreeReady) {
+    ctx.drawImage(foodThreeImage, foodThreeX, foodThreeY);
+  }
+  // ctx.fillText(
+  //   Seconds Remaining: ${SECONDS_PER_ROUND - elapsedTime},
+  //   20,
+  //   100
+  // );
+  ctx.fillText(`score: ${score}`, 20, 150);
+}
+
 function main() {
   update();
   render();
@@ -156,4 +182,4 @@ loadImages();
 setKeyboard();
 main();
 
-setInterval(draw, 18);
+setInterval(render, 500);

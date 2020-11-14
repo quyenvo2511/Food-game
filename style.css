@@ -7,6 +7,7 @@ body {
   background-image: url(img/back.png);
   background-size: cover;
   font-family: "Press Start 2P", cursive;
+  position: relative;
 }
 h2,
 p {
@@ -18,4 +19,9 @@ h2 {
 p {
   margin-top: 40px;
   font-size: 10px;
+}
+canvas {
+  /* position: absolute; */
+  bottom: 100px;
+  right: 200px;
 }
