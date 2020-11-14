@@ -1,0 +1,21 @@
+*,
+::after,
+::before {
+  box-sizing: border-box;
+}
+body {
+  background-image: url(img/back.png);
+  background-size: cover;
+  font-family: "Press Start 2P", cursive;
+}
+h2,
+p {
+  color: white;
+}
+h2 {
+  font-size: 30px;
+}
+p {
+  margin-top: 40px;
+  font-size: 10px;
+}
