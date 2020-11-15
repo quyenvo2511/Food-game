@@ -7,6 +7,8 @@ document.getElementById("container").appendChild(canvas);
 // setting img
 let bgReady, humanReady, foodOneReady, foodTwoReady, foodThreeReady;
 let bgImage, humanImage, foodOneImage, foodTwoImage, foodThreeImage;
+let ghostReady, ghostImage;
+
 let humanWidth, humanHeight;
 let scale = 1;
 
@@ -20,9 +22,11 @@ let pillWidth = 30;
 let pillHeight = 30;
 
 let level = 1;
-let btn = 0;
 // let reset = 0;
 // Loading img
+
+let isDead = false; // Check if the human has been dead or not
+let deadTextAdded = false; // Check if the game over message has been displayed or not
 
 function loadImages() {
   bgImage = new Image();
@@ -63,6 +67,12 @@ function loadImages() {
     isPillVisible = false;
   };
   pillImage.src = "img/pill.png";
+
+  ghostImage = new Image();
+  ghostImage.onload = function () {
+    ghostReady = true;
+  };
+  ghostImage.src = "img/ghost.png";
 }
 
 // Setting characters
@@ -113,123 +123,124 @@ function setKeyboard() {
 // Moving
 
 function update() {
-  // elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-  if (keyPressed["ArrowUp"]) {
-    if (humanY - humanHeight >= canvas.height - 200) {
-      humanY -= 5;
+  if (isDead == false) {
+    // elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+    if (keyPressed["ArrowUp"]) {
+      if (humanY - humanHeight >= canvas.height - 200) {
+        humanY -= 5;
+      }
     }
-  }
-  if (keyPressed["ArrowDown"]) {
-    if (humanY + 66 + 2 <= canvas.height) {
-      humanY += 5;
+    if (keyPressed["ArrowDown"]) {
+      if (humanY + 66 + 2 <= canvas.height) {
+        humanY += 5;
+      }
     }
-  }
-  if (keyPressed["ArrowLeft"]) {
-    humanX -= 5;
-    if (humanX <= 5) {
-      humanX = 5;
+    if (keyPressed["ArrowLeft"]) {
+      humanX -= 5;
+      if (humanX <= 5) {
+        humanX = 5;
+      }
     }
-  }
-  if (keyPressed["ArrowRight"]) {
-    humanX += 5;
-    if (humanX + 45 + 2 >= canvas.width) {
-      humanX = canvas.width - 45;
+    if (keyPressed["ArrowRight"]) {
+      humanX += 5;
+      if (humanX + 45 + 2 >= canvas.width) {
+        humanX = canvas.width - 45;
+      }
     }
-  }
-  foodOneY += dy;
-  // Check if the food1 has fallen into the player
-  if (
-    foodOneX <= humanX + humanWidth &&
-    foodOneX >= humanX - humanWidth / 2 &&
-    foodOneY >= humanY - humanHeight / 3
-  ) {
-    if (isPillVisible) {
-      let gameOverText = document.createElement("p");
-      gameOverText.innerHTML = "You are too fat! GAME OVER!";
-      gameOverText.id = "game-over";
-      document.getElementsByClassName("game-info")[0].appendChild(gameOverText);
-    } else {
+    foodOneY += dy;
+    // Check if the food1 has fallen into the player
+    if (
+      foodOneX <= humanX + humanWidth &&
+      foodOneX >= humanX - humanWidth / 2 &&
+      foodOneY >= humanY - humanHeight / 3
+    ) {
+      if (isPillVisible) {
+        isDead = true;
+      } else {
+        foodOneY = 0;
+        foodOneX = Math.floor(Math.random() * (canvas.width - 25));
+        score += 1;
+        // Increase the size of the human whe he eats the food
+        humanWidth *= 1.05;
+        humanHeight *= 1.05;
+      }
+    }
+    // Check if the food1 has pass throught the lower bound of the window
+    else if (foodOneY >= canvas.height) {
       foodOneY = 0;
       foodOneX = Math.floor(Math.random() * (canvas.width - 25));
-      score += 1;
-      // Increase the size of the human whe he eats the food
-      humanWidth *= 1.05;
-      humanHeight *= 1.05;
     }
-  }
-  // Check if the food1 has pass throught the lower bound of the window
-  else if (foodOneY >= canvas.height) {
-    foodOneY = 0;
-    foodOneX = Math.floor(Math.random() * (canvas.width - 25));
-  }
 
-  foodTwoY += dy;
-  if (
-    foodTwoX <= humanX + humanWidth &&
-    foodTwoX >= humanX - humanWidth / 2 &&
-    foodTwoY >= humanY - humanHeight / 3
-  ) {
-    if (isPillVisible) {
-      let gameOverText = document.createElement("p");
-      gameOverText.innerHTML = "You are too fat! GAME OVER!";
-      gameOverText.id = "game-over";
-      document.getElementsByClassName("game-info")[0].appendChild(gameOverText);
-    } else {
+    foodTwoY += dy;
+    if (
+      foodTwoX <= humanX + humanWidth &&
+      foodTwoX >= humanX - humanWidth / 2 &&
+      foodTwoY >= humanY - humanHeight / 3
+    ) {
+      if (isPillVisible) {
+        isDead = true;
+      } else {
+        foodTwoY = 0;
+        foodTwoX = Math.floor(Math.random() * (canvas.width - 25));
+        score += 2;
+        humanWidth *= 1.1;
+        humanHeight *= 1.1;
+      }
+    } else if (foodTwoY >= canvas.height) {
       foodTwoY = 0;
-      foodTwoX = Math.floor(Math.random() * (canvas.width - 25));
-      score += 2;
-      humanWidth *= 1.1;
-      humanHeight *= 1.1;
+      foodOneY = Math.floor(Math.random() * (canvas.width - 25));
     }
-  } else if (foodTwoY >= canvas.height) {
-    foodTwoY = 0;
-    foodOneY = Math.floor(Math.random() * (canvas.width - 25));
-  }
 
-  foodThreeY += dy;
-  if (
-    foodThreeX <= humanX + humanWidth &&
-    foodThreeX >= humanX - humanWidth / 2 &&
-    foodThreeY >= humanY - humanHeight / 3
-  ) {
-    if (isPillVisible) {
-      let gameOverText = document.createElement("p");
-      gameOverText.innerHTML = "You are too fat! GAME OVER!";
-      gameOverText.id = "game-over";
-      document.getElementsByClassName("game-info")[0].appendChild(gameOverText);
-    } else {
+    foodThreeY += dy;
+    if (
+      foodThreeX <= humanX + humanWidth &&
+      foodThreeX >= humanX - humanWidth / 2 &&
+      foodThreeY >= humanY - humanHeight / 3
+    ) {
+      if (isPillVisible) {
+        isDead = true;
+      } else {
+        foodThreeY = 0;
+        foodThreeX = Math.floor(Math.random() * (canvas.width - 25));
+        score += 3;
+        humanWidth *= 1.15;
+        humanHeight *= 1.15;
+      }
+    } else if (foodThreeY >= canvas.height) {
       foodThreeY = 0;
       foodThreeX = Math.floor(Math.random() * (canvas.width - 25));
-      score += 3;
-      humanWidth *= 1.15;
-      humanHeight *= 1.15;
     }
-  } else if (foodThreeY >= canvas.height) {
-    foodThreeY = 0;
-    foodThreeX = Math.floor(Math.random() * (canvas.width - 25));
-  }
 
-  if (score >= 5) {
-    isPillVisible = true;
-  }
+    if (score >= 5) {
+      isPillVisible = true;
+    }
 
-  pillY += dy;
+    if (isPillVisible == true) {
+      pillY += dy;
+    }
 
-  if (
-    pillX <= humanX + humanWidth &&
-    pillX >= humanX - humanWidth / 2 &&
-    pillY >= humanY - humanHeight / 2 &&
-    isPillVisible == true
-  ) {
-    humanWidth = originalHumanWidth;
-    humanHeight = originalHumanHeight;
-    score = 0;
-    isPillVisible = false;
-    level++;
-    dy += 2;
-  } else if (pillY >= canvas.height) {
-    pillY = 0;
-    pillX = Math.floor(Math.random() * (canvas.width - 10)) + 10;
+    if (
+      pillX <= humanX + humanWidth &&
+      pillX >= humanX - humanWidth / 2 &&
+      pillY >= humanY - humanHeight / 2 &&
+      isPillVisible == true
+    ) {
+      humanWidth = originalHumanWidth;
+      humanHeight = originalHumanHeight;
+      score = 0;
+      isPillVisible = false;
+      level++;
+      dy += 2;
+    } else if (pillY >= canvas.height && isPillVisible) {
+      pillY = 0;
+      pillX = Math.floor(Math.random() * (canvas.width - 10)) + 10;
+    }
+  } else if (isDead == true) {
+    if (deadTextAdded == false) {
+      document.getElementById("game-over").innerHTML =
+        "You are too fat! GAME OVER!";
+      deadTextAdded = true;
+    }
   }
 }
 
@@ -238,8 +249,10 @@ function render() {
   if (bgReady) {
     ctx.drawImage(bgImage, 0, 0);
   }
-  if (humanReady) {
+  if (isDead == false && humanReady) {
     ctx.drawImage(humanImage, humanX, humanY, humanWidth, humanHeight);
+  } else if (isDead == true && ghostReady) {
+    ctx.drawImage(ghostImage, humanX, humanY, humanWidth, humanHeight);
   }
   if (foodOneReady) {
     ctx.drawImage(foodOneImage, foodOneX, foodOneY);
@@ -262,7 +275,21 @@ function render() {
   document.getElementById("score").innerHTML = `Score: ${score}`;
   document.getElementById("level").innerHTML = `Level: ${level}`;
   document.getElementById("btn").onclick = function () {
-    document.getElementById("score", "level").innerHTML = 0;
+    if (deadTextAdded == true) {
+      document.getElementById("game-over").innerHTML = "";
+    }
+    isDead = false;
+    isPillVisible = false;
+    humanWidth = originalHumanWidth;
+    humanHeight = originalHumanHeight;
+    score = 0;
+    level = 1;
+    deadTextAdded = false;
+    foodOneY = 0;
+    foodTwoY = 0;
+    foodThreeY = 0;
+    dy = 2;
+    // render();
   };
 }
 
@@ -282,4 +309,4 @@ loadImages();
 setKeyboard();
 main();
 
-setInterval(render, 500);
+setInterval(render, 1000);
