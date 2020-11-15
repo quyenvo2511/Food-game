@@ -9,6 +9,8 @@ body {
   font-family: "Press Start 2P", cursive;
   color: aquamarine;
   position: relative;
+  display: flex;
+  flex-direction: row;
 }
 h2,
 p {
@@ -19,10 +21,11 @@ h2 {
 }
 p {
   margin-top: 40px;
-  font-size: 10px;
+  font-size: 13px;
 }
 #container {
   position: relative;
+  padding-left: 30px;
 }
 
 #score {
@@ -43,3 +46,23 @@ p {
   justify-content: flex-end;
   align-items: flex-end;
 } */
+
+canvas {
+  position: fixed;
+  flex: 1;
+  right: 30px;
+  bottom: 50px;
+}
+li {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+br {
+  padding-top: 10px;
+}
+button {
+  padding: 10px 10px 10px 10px;
+  border: none;
+  background-color: red;
+  color: aliceblue;
+}
