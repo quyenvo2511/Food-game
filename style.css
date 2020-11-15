@@ -5,9 +5,9 @@
 }
 body {
   background-image: url(img/back.png);
-  background-size: cover;
+  background-size: 100%;
   font-family: "Press Start 2P", cursive;
-  position: relative;
+  color: aquamarine;
 }
 h2,
 p {
@@ -26,10 +26,23 @@ p {
 
 canvas {
   position: absolute;
-  right: 200px;
-  margin-bottom: 100;
+  margin-bottom: 100px;
 }
-
 #score {
   font-size: 1.5em;
+}
+#level {
+  font-size: 1.5em;
+}
+.game-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+}
+.instruction {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
 }

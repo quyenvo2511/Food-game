@@ -10,11 +10,18 @@ let bgImage, humanImage, foodOneImage, foodTwoImage, foodThreeImage;
 let humanWidth, humanHeight;
 let scale = 1;
 
+let originalHumanWidth;
+let originalHumanHeight;
+
 // The pill
 let pillImage;
 let isPillVisible = false;
 let pillWidth = 30;
 let pillHeight = 30;
+
+let level = 1;
+let btn = 0;
+// let reset = 0;
 // Loading img
 
 function loadImages() {
@@ -28,6 +35,8 @@ function loadImages() {
     humanReady = true;
     humanWidth = humanImage.naturalWidth;
     humanHeight = humanImage.naturalHeight;
+    originalHumanWidth = humanWidth;
+    originalHumanHeight = humanHeight;
   };
   humanImage.src = "img/human.png";
 
@@ -132,14 +141,21 @@ function update() {
   if (
     foodOneX <= humanX + humanWidth &&
     foodOneX >= humanX - humanWidth / 2 &&
-    foodOneY >= humanY - humanHeight / 2
+    foodOneY >= humanY - humanHeight / 3
   ) {
-    foodOneY = 0;
-    foodOneX = Math.floor(Math.random() * (canvas.width - 25));
-    score += 1;
-    // Increase the size of the human whe he eats the food
-    humanWidth *= 1.05;
-    humanHeight *= 1.05;
+    if (isPillVisible) {
+      let gameOverText = document.createElement("p");
+      gameOverText.innerHTML = "You are too fat! GAME OVER!";
+      gameOverText.id = "game-over";
+      document.getElementsByClassName("game-info")[0].appendChild(gameOverText);
+    } else {
+      foodOneY = 0;
+      foodOneX = Math.floor(Math.random() * (canvas.width - 25));
+      score += 1;
+      // Increase the size of the human whe he eats the food
+      humanWidth *= 1.05;
+      humanHeight *= 1.05;
+    }
   }
   // Check if the food1 has pass throught the lower bound of the window
   else if (foodOneY >= canvas.height) {
@@ -151,39 +167,70 @@ function update() {
   if (
     foodTwoX <= humanX + humanWidth &&
     foodTwoX >= humanX - humanWidth / 2 &&
-    foodTwoY >= humanY - humanHeight / 2
+    foodTwoY >= humanY - humanHeight / 3
   ) {
+    if (isPillVisible) {
+      let gameOverText = document.createElement("p");
+      gameOverText.innerHTML = "You are too fat! GAME OVER!";
+      gameOverText.id = "game-over";
+      document.getElementsByClassName("game-info")[0].appendChild(gameOverText);
+    } else {
+      foodTwoY = 0;
+      foodTwoX = Math.floor(Math.random() * (canvas.width - 25));
+      score += 2;
+      humanWidth *= 1.1;
+      humanHeight *= 1.1;
+    }
+  } else if (foodTwoY >= canvas.height) {
     foodTwoY = 0;
-    foodTwoX = Math.floor(Math.random() * (canvas.width - 25));
-    score += 2;
-    humanWidth *= 1.1;
-    humanHeight *= 1.1;
+    foodOneY = Math.floor(Math.random() * (canvas.width - 25));
   }
+
   foodThreeY += dy;
   if (
     foodThreeX <= humanX + humanWidth &&
     foodThreeX >= humanX - humanWidth / 2 &&
-    foodThreeY >= humanY - humanHeight / 2
+    foodThreeY >= humanY - humanHeight / 3
   ) {
+    if (isPillVisible) {
+      let gameOverText = document.createElement("p");
+      gameOverText.innerHTML = "You are too fat! GAME OVER!";
+      gameOverText.id = "game-over";
+      document.getElementsByClassName("game-info")[0].appendChild(gameOverText);
+    } else {
+      foodThreeY = 0;
+      foodThreeX = Math.floor(Math.random() * (canvas.width - 25));
+      score += 3;
+      humanWidth *= 1.15;
+      humanHeight *= 1.15;
+    }
+  } else if (foodThreeY >= canvas.height) {
     foodThreeY = 0;
     foodThreeX = Math.floor(Math.random() * (canvas.width - 25));
-    score += 3;
-    humanWidth *= 1.15;
-    humanHeight *= 1.15;
   }
 
   if (score >= 5) {
     isPillVisible = true;
   }
+
   pillY += dy;
-  if (pillY >= canvas.height) {
+
+  if (
+    pillX <= humanX + humanWidth &&
+    pillX >= humanX - humanWidth / 2 &&
+    pillY >= humanY - humanHeight / 2 &&
+    isPillVisible == true
+  ) {
+    humanWidth = originalHumanWidth;
+    humanHeight = originalHumanHeight;
+    score = 0;
+    isPillVisible = false;
+    level++;
+    dy += 2;
+  } else if (pillY >= canvas.height) {
     pillY = 0;
     pillX = Math.floor(Math.random() * (canvas.width - 10)) + 10;
-    humanWidth /= 1.2;
-    humanHeight /= 1.2;
-    score = 0;
   }
-  // if (score >= 6 || )
 }
 
 // Render
@@ -213,6 +260,10 @@ function render() {
   // );
   // ctx.fillText(`score: ${score}`, 20, 150);
   document.getElementById("score").innerHTML = `Score: ${score}`;
+  document.getElementById("level").innerHTML = `Level: ${level}`;
+  document.getElementById("btn").onclick = function () {
+    document.getElementById("score", "level").innerHTML = 0;
+  };
 }
 
 function main() {
