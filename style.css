@@ -51,7 +51,8 @@ canvas {
   position: fixed;
   flex: 1;
   right: 30px;
-  bottom: 50px;
+  bottom: 100px;
+  top: 30px;
 }
 li {
   padding-top: 5px;
